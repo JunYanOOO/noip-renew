@@ -15,6 +15,8 @@
 
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from datetime import date
 from datetime import timedelta
 import time
@@ -70,11 +72,11 @@ class Robot:
             self.browser.save_screenshot("debug1.png")
 
         self.logger.log("Logging in...")
-        ele_usr = self.browser.find_element_by_name("username")
-        ele_pwd = self.browser.find_element_by_name("password")
+        ele_usr = self.browser.find_element(By.NAME, "username")
+        ele_pwd = self.browser.find_element(By.NAME, "password")
         ele_usr.send_keys(self.username)
         ele_pwd.send_keys(base64.b64decode(self.password).decode('utf-8'))
-        self.browser.find_element_by_name("Login").click()
+        ele_pwd.send_keys(Keys.ENTER)
         if self.debug > 1:
             time.sleep(1)
             self.browser.save_screenshot("debug2.png")
@@ -151,10 +153,10 @@ class Robot:
 
     @staticmethod
     def get_host_button(host, iteration):
-        return host.find_element_by_xpath(".//following-sibling::td[4]/button[contains(@class, 'btn')]")
+        return host.find_element(By.XPATH, "//td[6]/button[contains(@class, 'btn-success')]")
 
     def get_hosts(self):
-        host_tds = self.browser.find_elements_by_xpath("//td[@data-title=\"Host\"]")
+        host_tds = self.browser.find_elements(By.XPATH, "//td[@data-title='Host']")
         if len(host_tds) == 0:
             raise Exception("No hosts or host table rows not found")
         return host_tds
@@ -169,7 +171,7 @@ class Robot:
         except Exception as e:
             self.logger.log(str(e))
             self.browser.save_screenshot("exception.png")
-            subprocess.call(['/usr/local/bin/noip-renew-skd.sh', "*", "*", "False"])
+            # subprocess.call(['/usr/local/bin/noip-renew-skd.sh', "*", "*", "False"])
             rc = 2
         finally:
             self.browser.quit()
